@@ -11,8 +11,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-
+    <script src="http://d3js.org/d3.v3.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/87/three.min.js"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
     <script src="{{ asset('js/Detector.js') }}"></script>
     <script src="{{ asset('js/OrbitControls.js') }}"></script>
     <script src="{{ asset('js/OBJLoader.js') }}"></script>
@@ -23,7 +24,6 @@
             overflow: hidden;
             margin: 0;
             padding: 0;
-            background: hsl(0, 0%, 10%);
         }
     </style>
     <title></title>
@@ -31,25 +31,33 @@
 </head>
 <body>
 
+<h1 style="text-align: center;">Door - 3D Viewer</h1>
+<span onClick="zoomIn()"><i class="fas fa-plus-circle fa-3x"></i></span>
+<span onClick="zoomOut()"><i class="fas fa-minus-circle fa-3x"></i></span>
+
 <script>
     // All of these variables will be needed later, just ignore them for now.
     var container;
     var camera, controls, scene, renderer;
     var lighting, ambient, keyLight, fillLight, backLight;
     var windowHalfX = window.innerWidth / 2;
-    var windowHalfY = window.innerHeight / 2;
+    var windowHalfY = window.innerHeight / 2 - 100;
 
     init();
     animate();
 
     function init() {
+        zoomscale = 1;
         //init container contain renderer
+        mainDiv = document.createElement('div');
         container = document.createElement('div');
-        document.body.appendChild(container);
+        container.className = "container";
+        mainDiv.appendChild(container);
+        document.body.appendChild(mainDiv);
 
         //init camera
-        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 7500);
-        camera.position.z = 2500;
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 10000);
+        camera.position.z = 5000;
 
         //Scene holds camera
         scene = new THREE.Scene();
@@ -91,6 +99,7 @@
             objLoader.setMaterials(materials);
             objLoader.setPath("assets/");
             objLoader.load('Door 2 N230518.obj', function (object) {
+                
                 scene.add(object);
 
             });
@@ -113,7 +122,6 @@
 
         /* Events */
         window.addEventListener('resize', onWindowResize, false);
-        window.addEventListener('keydown', onKeyboardEvent, false);
 
     }
 
@@ -122,22 +130,7 @@
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
     }
-    function onKeyboardEvent(e) {
-        if (e.code === 'KeyL') {
-            lighting = !lighting;
-            if (lighting) {
-                ambient.intensity = 0.25;
-                scene.add(keyLight);
-                scene.add(fillLight);
-                scene.add(backLight);
-            } else {
-                ambient.intensity = 1.0;
-                scene.remove(keyLight);
-                scene.remove(fillLight);
-                scene.remove(backLight);
-            }
-        }
-    }
+    
 
     function animate() {
         requestAnimationFrame(animate);
@@ -147,6 +140,20 @@
 
     function render() {
         renderer.render(scene, camera);
+    }
+
+    function zoomIn() {
+        zoomscale += 0.1;
+        camera.zoom = zoomscale;
+        camera.updateProjectionMatrix();        
+
+    }
+    function zoomOut() {
+        if (zoomscale >= 0.4) {
+            zoomscale -= 0.1;
+            camera.zoom = zoomscale;
+            camera.updateProjectionMatrix();      
+        }
     }
 
 </script>
