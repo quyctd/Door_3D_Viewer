@@ -25,15 +25,31 @@
             margin: 0;
             padding: 0;
         }
+        button {
+        border-radius: 0.2em;
+        background-color: white;
+        color: #3CB371;
+        border: 3px solid #3CB371;
+        font-weight: bold;
+        padding: 1em;
+        cursor: pointer;
+      }
     </style>
     <title></title>
 
 </head>
 <body>
+<div class="util">
+    <h1 style="text-align: center;">
+        Door - 3D Viewer |
+        <span id="loading"></span>
 
-<h1 style="text-align: center;">Door - 3D Viewer</h1>
-<span onClick="zoomIn()"><i class="fas fa-plus-circle fa-3x"></i></span>
-<span onClick="zoomOut()"><i class="fas fa-minus-circle fa-3x"></i></span>
+        <span onClick="zoomIn()"><i class="fas fa-plus-circle fa-1x"></i></span>
+        <span onClick="zoomOut()"><i class="fas fa-minus-circle fa-1x"></i></span>
+    </h1>
+</div>
+
+
 
 <script>
     // All of these variables will be needed later, just ignore them for now.
@@ -42,12 +58,13 @@
     var lighting, ambient, keyLight, fillLight, backLight;
     var windowHalfX = window.innerWidth / 2;
     var windowHalfY = window.innerHeight / 2 - 100;
+    var zoomscale = 0.8;
+    var loadingElement = document.getElementById('loading');
 
     init();
     animate();
 
     function init() {
-        zoomscale = 1;
         //init container contain renderer
         mainDiv = document.createElement('div');
         container = document.createElement('div');
@@ -98,11 +115,20 @@
             var objLoader = new THREE.OBJLoader();
             objLoader.setMaterials(materials);
             objLoader.setPath("assets/");
-            objLoader.load('Door 2 N230518.obj', function (object) {
+            objLoader.load('Door 2 N230518.obj', 
+                function (object) {
+                    scene.add(object);
+                }, 
+                function loading(object) {
+                    console.log(object);
+                    var text = parseInt(object.loaded/object.total * 100);
+                    loadingElement.innerHTML = "Loading: " + text + "% | " ;
+                    if (text == 100) {
+                        loadingElement.innerHTML = "";
+                    }
+                },
                 
-                scene.add(object);
-
-            });
+            );
 
         });
 
@@ -122,6 +148,10 @@
 
         /* Events */
         window.addEventListener('resize', onWindowResize, false);
+
+        /* Init scale */
+        camera.zoom = zoomscale;
+        camera.updateProjectionMatrix();      
 
     }
 
@@ -155,7 +185,7 @@
             camera.updateProjectionMatrix();      
         }
     }
-
+    
 </script>
 
 </body>
